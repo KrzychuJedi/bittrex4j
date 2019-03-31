@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
@@ -24,7 +25,7 @@ import java.time.ZonedDateTime;
  * Created by ceri on 09/09/2017.
  */
 @JsonIgnoreProperties("DisplayMarketName")
-public class MarketSummary {
+public class MarketSummary implements Serializable {
 
     @JsonProperty("MarketName")
     @JsonAlias("M")

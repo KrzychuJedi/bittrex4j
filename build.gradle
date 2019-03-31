@@ -64,6 +64,8 @@ dependencies {
     compile "com.google.code.gson:gson:2.8.2"
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     compile 'com.github.signalr4j:signalr4j:2.0.3'
+    compile 'net.openhft:zero-allocation-hashing:0.9'
+    compile 'net.openhft:chronicle-map:3.17.1'
 
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
     testCompile 'org.hamcrest:hamcrest-all:1.3'

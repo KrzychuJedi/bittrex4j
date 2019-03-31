@@ -12,23 +12,21 @@
 package com.github.ccob.bittrex4j;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.github.ccob.bittrex4j.cloudflare.CloudFlareAuthorizer;
-import com.github.ccob.bittrex4j.dao.*;
 import com.github.ccob.bittrex4j.dao.Currency;
+import com.github.ccob.bittrex4j.dao.*;
 import com.github.ccob.bittrex4j.dao.OrderBook.TYPE;
 import com.github.ccob.bittrex4j.listeners.InvocationResult;
 import com.github.ccob.bittrex4j.listeners.Listener;
 import com.github.ccob.bittrex4j.listeners.UpdateExchangeStateListener;
 import com.github.ccob.bittrex4j.listeners.UpdateSummaryStateListener;
 import com.github.signalr4j.client.ConnectionState;
-import com.github.signalr4j.client.Platform;
 import com.github.signalr4j.client.hubs.HubConnection;
 import com.github.signalr4j.client.hubs.HubProxy;
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.HttpClient;
@@ -120,7 +118,8 @@ public class BittrexExchange implements AutoCloseable {
         this.httpFactory = httpFactory;
         this.retries = retries;
 
-        mapper = new ObjectMapper();
+        mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         SimpleModule module = new SimpleModule();
         module.addDeserializer(ZonedDateTime.class, new DateTimeDeserializer());
         mapper.registerModule(module);

@@ -11,11 +11,11 @@
 
 package com.github.ccob.bittrex4j.dao;
 
-import java.math.BigDecimal;
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.math.BigDecimal;
 
 public class MarketOrder {
     private int type;
@@ -40,5 +40,14 @@ public class MarketOrder {
 
     public int getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return "MarketOrder{" +
+                "type=" + type +
+                ", quantity=" + quantity +
+                ", rate=" + rate +
+                '}';
     }
 }
