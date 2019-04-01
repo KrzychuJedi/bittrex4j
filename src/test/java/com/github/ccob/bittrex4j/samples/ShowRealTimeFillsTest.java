@@ -5,12 +5,12 @@ import com.github.ccob.bittrex4j.dao.Fill;
 import com.github.ccob.bittrex4j.dao.MarketSummary;
 import com.github.ccob.bittrex4j.dao.OrderType;
 import com.github.ccob.bittrex4j.util.MarketUtil;
-import net.openhft.chronicle.map.ChronicleMap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -26,21 +26,9 @@ public class ShowRealTimeFillsTest {
     private static MarketSummary btcEthMarket = new MarketSummary(BigDecimal.ZERO, BigDecimal.ZERO);
     private static MarketSummary zeroMarket = new MarketSummary(BigDecimal.ZERO, BigDecimal.ZERO);
 
-    private static Map<String, MarketSummary> btcMarkets = ChronicleMap
-            .of(String.class,MarketSummary.class)
-            .name("btc-markets")
-            .averageKey("BTC-ETH")
-            .entries(300)
-            .averageValue(zeroMarket)
-            .create();
+    private static Map<String, MarketSummary> btcMarkets = new HashMap<>();
 
-    private static Map<String, MarketSummary> ethMarkets = ChronicleMap
-            .of(String.class,MarketSummary.class)
-            .name("eth-markets")
-            .averageKey("ETH-XOR")
-            .entries(300)
-            .averageValue(zeroMarket)
-            .create();;
+    private static Map<String, MarketSummary> ethMarkets = new HashMap<>();
 
     private static final String BTC = "BTC";
     private static final String ETH = "ETH";
