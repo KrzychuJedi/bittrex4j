@@ -107,7 +107,7 @@ public class ShowRealTimeFillsTest {
                             orderDelta.getOrder().getOrderUuid(), orderDelta.getOrder().getQuantity()));
 
                     // sell X and get ETH
-                    //TODO handle order for selling eth
+                    //TODO handle order for selling eth to get btc
                     MarketSummary ethMartket = deals.get(orderDelta.getOrder().getOrderUuid());
 
                     Response<UuidResult> sellResponse = bittrexExchange.sellLimit(ETH + ethMartket.getMarketName(),
