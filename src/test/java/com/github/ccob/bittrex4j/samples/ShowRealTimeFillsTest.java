@@ -1,9 +1,10 @@
 package com.github.ccob.bittrex4j.samples;
 
 import com.github.ccob.bittrex4j.BittrexExchange;
-import com.github.ccob.bittrex4j.dao.Fill;
 import com.github.ccob.bittrex4j.dao.MarketSummary;
 import com.github.ccob.bittrex4j.dao.OrderType;
+import com.github.ccob.bittrex4j.dao.Response;
+import com.github.ccob.bittrex4j.dao.UuidResult;
 import com.github.ccob.bittrex4j.util.MarketUtil;
 
 import java.io.FileInputStream;
@@ -23,12 +24,16 @@ public class ShowRealTimeFillsTest {
 
     private static BigDecimal loose = BigDecimal.valueOf(1.0050);
 
+    private static BigDecimal oneOfThousand = BigDecimal.valueOf(0.001);
+
     private static MarketSummary btcEthMarket = new MarketSummary(BigDecimal.ZERO, BigDecimal.ZERO);
     private static MarketSummary zeroMarket = new MarketSummary(BigDecimal.ZERO, BigDecimal.ZERO);
 
     private static Map<String, MarketSummary> btcMarkets = new HashMap<>();
 
     private static Map<String, MarketSummary> ethMarkets = new HashMap<>();
+
+    private static Map<String, MarketSummary> deals = new HashMap<>();
 
     private static final String BTC = "BTC";
     private static final String ETH = "ETH";
@@ -60,9 +65,9 @@ public class ShowRealTimeFillsTest {
                                 btcMarkets.put(marketName, marketSummary);
                                 if (marketSummary.getMarketName().equals(BTC_ETH)) {
                                     btcEthMarket = marketSummary;
-                                    btcMarkets.keySet().forEach(s -> countProfits(s, btcMarkets.get(s)));
+                                    btcMarkets.keySet().forEach(s -> countProfits(s, btcMarkets.get(s), bittrexExchange));
                                 } else {
-                                    countProfits(marketName, marketSummary);
+                                    countProfits(marketName, marketSummary, bittrexExchange);
                                 }
                                 long endTime = System.nanoTime();
                                 System.out.println("btc path, start buying after: " + TimeUnit.NANOSECONDS.toNanos(endTime - time));
@@ -85,25 +90,11 @@ public class ShowRealTimeFillsTest {
 
                                 String marketName = marketSummary.getMarketName().substring(4); //TODO fast substring
                                 ethMarkets.put(marketName, marketSummary);
-                                countProfitsEth(marketName, marketSummary);
+                                countProfitsEth(marketName, marketSummary, bittrexExchange);
 
                                 long endTime = System.nanoTime();
                                 System.out.println("eth path, start buying after: " + TimeUnit.NANOSECONDS.toNanos(endTime - time));
                             });
-                }
-            });
-
-            bittrexExchange.onUpdateExchangeState(updateExchangeState -> {
-                double volume = Arrays.stream(updateExchangeState.getFills())
-                        .mapToDouble(Fill::getQuantity)
-                        .sum();
-/*
-                Arrays.stream(updateExchangeState.getBuys())
-                        .forEach(System.out::println);
-*/
-                if (updateExchangeState.getFills().length > 0) {
-                    System.out.println(String.format("N: %d, %02f volume across %d fill(s) for %s", updateExchangeState.getNounce(),
-                            volume, updateExchangeState.getFills().length, updateExchangeState.getMarketName()));
                 }
             });
 
@@ -114,6 +105,23 @@ public class ShowRealTimeFillsTest {
                 } else if (orderDelta.getType() == OrderType.Filled) {
                     System.out.println(String.format("%s order with id %s filled, qty %.04f", orderDelta.getOrder().getExchange(),
                             orderDelta.getOrder().getOrderUuid(), orderDelta.getOrder().getQuantity()));
+
+                    // sell X and get ETH
+                    //TODO handle order for selling eth
+                    MarketSummary ethMartket = deals.get(orderDelta.getOrder().getOrderUuid());
+
+                    Response<UuidResult> sellResponse = bittrexExchange.sellLimit(ETH + ethMartket.getMarketName(),
+                            orderDelta.getOrder().getQuantity(),
+                            ethMartket.getBid().doubleValue());
+
+                    if (!sellResponse.isSuccess() || sellResponse.getResult() == null) {
+                        System.out.println("Operation failed");
+                        System.out.println(sellResponse.getMessage());
+                    } else {
+                        deals.put(sellResponse.getResult().getUuid(), ethMarket);
+                    }
+
+
                 } else if (orderDelta.getType() == OrderType.Cancelled) {
                     System.out.println(String.format("%s order with id %s cancelled", orderDelta.getOrder().getExchange(),
                             orderDelta.getOrder().getOrderUuid()));
@@ -141,54 +149,58 @@ public class ShowRealTimeFillsTest {
     }
 
 
-    private static void countProfits(String marketName, MarketSummary btcMarket) {
+    private static void countProfits(String marketName, MarketSummary btcMarket, BittrexExchange bittrexExchange) {
 
         MarketSummary ethMarket = ethMarkets.get(marketName);
 
         if (ethMarket != null) {
 
-            BigDecimal coinsForBTC = MarketUtil.getBuyQuantity(btcMarket.getAsk(), BigDecimal.ONE.multiply(commission));
-
-            BigDecimal ethForCoin = coinsForBTC.multiply(commission).multiply(ethMarket.getBid())
-                    .setScale(8, BigDecimal.ROUND_HALF_UP);
-
-            BigDecimal btcForEth = ethForCoin.multiply(commission).multiply(btcEthMarket.getBid())
-                    .setScale(8, BigDecimal.ROUND_HALF_UP);
-
-            if (btcForEth.compareTo(loose) > 0) {
-                long time = System.nanoTime();
-
-//            arbitrationService.makeOpearations(btcMarket, ethMarket, btcEth, time);
-                long endTime = System.nanoTime();
-
-                System.out.println("BTC: " + btcForEth.toString());
-                System.out.println("Market " + marketName);
-            }
+            calculateProfits(btcMarket, ethMarket, bittrexExchange, marketName);
         }
     }
 
-    private static void countProfitsEth(String marketName, MarketSummary ethMarket) {
+    private static void countProfitsEth(String marketName, MarketSummary ethMarket, BittrexExchange bittrexExchange) {
         MarketSummary btcMarket = btcMarkets.get(marketName);
 
         if (btcMarket != null) {
-
-            BigDecimal coinsForBTC = MarketUtil.getBuyQuantity(btcMarket.getAsk(), BigDecimal.ONE.multiply(commission));
-
-            BigDecimal ethForCoin = coinsForBTC.multiply(commission).multiply(ethMarket.getBid())
-                    .setScale(8, BigDecimal.ROUND_HALF_UP);
-
-            BigDecimal btcForEth = ethForCoin.multiply(commission).multiply(btcEthMarket.getBid())
-                    .setScale(8, BigDecimal.ROUND_HALF_UP);
-
-            if (btcForEth.compareTo(loose) > 0) {
-                long time = System.nanoTime();
-
-//            arbitrationService.makeOpearations(btcMarket, ethMarket, btcEth, time);
-                long endTime = System.nanoTime();
-
-                System.out.println("BTC: " + btcForEth.toString());
-                System.out.println("Market " + marketName);
-            }
+            calculateProfits(btcMarket, ethMarket, bittrexExchange, marketName);
         }
+    }
+
+    private static void calculateProfits(MarketSummary btcMarket, MarketSummary ethMarket, BittrexExchange bittrexExchange, String marketName){
+        BigDecimal coinsForBTC = MarketUtil.getBuyQuantity(btcMarket.getAsk(), BigDecimal.ONE.multiply(commission));
+
+        BigDecimal ethForCoin = coinsForBTC.multiply(commission).multiply(ethMarket.getBid())
+                .setScale(8, BigDecimal.ROUND_HALF_UP);
+
+        BigDecimal btcForEth = ethForCoin.multiply(commission).multiply(btcEthMarket.getBid())
+                .setScale(8, BigDecimal.ROUND_HALF_UP);
+
+        if (btcForEth.compareTo(loose) > 0) {
+
+            buyCryptoUsingBTC(btcMarket, ethMarket, btcForEth, bittrexExchange);
+
+            System.out.println("Crypto bought: " + marketName);
+        }
+    }
+
+
+    private static void buyCryptoUsingBTC(MarketSummary btcMarket, MarketSummary ethMarket, BigDecimal btcForEth, BittrexExchange bittrexExchange) {
+
+        // buy X for BTC
+
+        Response<UuidResult> buyResponse = bittrexExchange.buyLimit(BTC + btcMarket.getMarketName(),
+                MarketUtil.getBuyQuantity(btcMarket.getAsk(), oneOfThousand).doubleValue(),
+                btcMarket.getAsk().doubleValue());
+
+        if (!buyResponse.isSuccess() || buyResponse.getResult() == null) {
+            System.out.println("Operation failed");
+            System.out.println(buyResponse.getMessage());
+        } else {
+            deals.put(buyResponse.getResult().getUuid(), ethMarket);
+            System.out.println("Operation succeed");
+            System.out.println(buyResponse.getResult().getUuid());
+        }
+
     }
 }
