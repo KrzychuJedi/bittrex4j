@@ -15,7 +15,7 @@ import org.apache.commons.codec.binary.Hex;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -31,12 +31,11 @@ class EncryptionUtility {
         return Hex.encodeHexString(hash);
     }
 
-    static String generateNonce() throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    static String generateNonce() throws NoSuchAlgorithmException {
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
         random.setSeed(System.currentTimeMillis());
         byte[] nonceBytes = new byte[16];
         random.nextBytes(nonceBytes);
-        String nonce = new String(Base64.getEncoder().encode(nonceBytes), "UTF-8");
-        return nonce;
+        return new String(Base64.getEncoder().encode(nonceBytes), StandardCharsets.UTF_8);
     }
 }
