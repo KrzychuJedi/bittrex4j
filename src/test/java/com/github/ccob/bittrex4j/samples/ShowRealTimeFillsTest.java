@@ -107,18 +107,19 @@ public class ShowRealTimeFillsTest {
                             orderDelta.getOrder().getOrderUuid(), orderDelta.getOrder().getQuantity()));
 
                     // sell X and get ETH
-                    //TODO handle order for selling eth to get btc
-                    MarketSummary ethMartket = deals.get(orderDelta.getOrder().getOrderUuid());
+                    // sell ETH and get BTC
+                    MarketSummary market = deals.get(orderDelta.getOrder().getOrderUuid());
+                    if(market!= null) {
+                        Response<UuidResult> sellResponse = bittrexExchange.sellLimit(market.getMarketName(),
+                                orderDelta.getOrder().getQuantity(),
+                                market.getBid().doubleValue());
 
-                    Response<UuidResult> sellResponse = bittrexExchange.sellLimit(ETH + ethMartket.getMarketName(),
-                            orderDelta.getOrder().getQuantity(),
-                            ethMartket.getBid().doubleValue());
-
-                    if (!sellResponse.isSuccess() || sellResponse.getResult() == null) {
-                        System.out.println("Operation failed");
-                        System.out.println(sellResponse.getMessage());
-                    } else {
-                        deals.put(sellResponse.getResult().getUuid(), ethMarket);
+                        if (!sellResponse.isSuccess() || sellResponse.getResult() == null) {
+                            System.out.println("Operation failed");
+                            System.out.println(sellResponse.getMessage());
+                        } else if (!orderDelta.getOrder().getExchange().equals(BTC_ETH)) {
+                            deals.put(sellResponse.getResult().getUuid(), btcEthMarket);
+                        }
                     }
 
 
