@@ -81,6 +81,8 @@ public class MarketSummary implements Serializable {
     @JsonDeserialize(using = DateTimeDeserializer.class)
     ZonedDateTime created;
 
+    MarketSummary nextMarket;
+
     public MarketSummary(){}
 
     public MarketSummary(BigDecimal bid, BigDecimal ask){
@@ -138,5 +140,13 @@ public class MarketSummary implements Serializable {
 
     public ZonedDateTime getCreated() {
         return created;
+    }
+
+    public MarketSummary next() {
+        return nextMarket;
+    }
+
+    public void setNext(MarketSummary nextMarket) {
+        this.nextMarket = nextMarket;
     }
 }

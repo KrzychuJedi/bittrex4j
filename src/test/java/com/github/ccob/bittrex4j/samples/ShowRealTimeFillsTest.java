@@ -117,8 +117,8 @@ public class ShowRealTimeFillsTest {
                         if (!sellResponse.isSuccess() || sellResponse.getResult() == null) {
                             System.out.println("Operation failed");
                             System.out.println(sellResponse.getMessage());
-                        } else if (!orderDelta.getOrder().getExchange().equals(BTC_ETH)) {
-                            deals.put(sellResponse.getResult().getUuid(), btcEthMarket);
+                        } else if (market.next() != null) {
+                            deals.put(sellResponse.getResult().getUuid(), market.next());
                         }
                     }
 
@@ -169,7 +169,7 @@ public class ShowRealTimeFillsTest {
     }
 
     private static void calculateProfits(MarketSummary btcMarket, MarketSummary ethMarket, BittrexExchange bittrexExchange, String marketName){
-        BigDecimal coinsForBTC = MarketUtil.getBuyQuantity(btcMarket.getAsk(), BigDecimal.ONE.multiply(commission));
+        BigDecimal coinsForBTC = MarketUtil.getBuyQuantity(btcMarket.getAsk(), commission);
 
         BigDecimal ethForCoin = coinsForBTC.multiply(commission).multiply(ethMarket.getBid())
                 .setScale(8, BigDecimal.ROUND_HALF_UP);
@@ -179,14 +179,15 @@ public class ShowRealTimeFillsTest {
 
         if (btcForEth.compareTo(loose) > 0) {
 
-            buyCryptoUsingBTC(btcMarket, ethMarket, btcForEth, bittrexExchange);
+            ethMarket.setNext(btcEthMarket);
+//            buyCryptoUsingBTC(btcMarket, ethMarket, bittrexExchange);
 
             System.out.println("Crypto bought: " + marketName);
         }
     }
 
 
-    private static void buyCryptoUsingBTC(MarketSummary btcMarket, MarketSummary ethMarket, BigDecimal btcForEth, BittrexExchange bittrexExchange) {
+    private static void buyCryptoUsingBTC(MarketSummary btcMarket, MarketSummary ethMarket, BittrexExchange bittrexExchange) {
 
         // buy X for BTC
 
