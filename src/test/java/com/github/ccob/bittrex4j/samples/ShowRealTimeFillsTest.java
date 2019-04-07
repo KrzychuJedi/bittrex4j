@@ -53,7 +53,7 @@ public class ShowRealTimeFillsTest {
 
                     Arrays.stream(exchangeSummaryState.getDeltas())
                             .filter(marketSummary -> marketSummary.getMarketName().startsWith(BTC))
-                            .filter(marketSummary -> ethMarkets.keySet().stream().anyMatch(s -> s.endsWith(marketSummary.getMarketName().substring(4))))
+                            .filter(marketSummary -> marketSummary.getMarketName().equals(BTC_ETH) || ethMarkets.keySet().stream().anyMatch(s -> s.endsWith(marketSummary.getMarketName().substring(4))))
 //                            .filter(marketSummary -> marketSummary.getAsk().compareTo(BigDecimal.ZERO) > 0)
 //                            .filter(marketSummary -> marketSummary.getBid().compareTo(BigDecimal.ZERO) > 0)
 //                            .filter(marketSummary -> marketSummary.getBaseVolume().compareTo(volumeLimit) > 0)
@@ -183,6 +183,8 @@ public class ShowRealTimeFillsTest {
 //            buyCryptoUsingBTC(btcMarket, ethMarket, bittrexExchange);
 
             System.out.println("Crypto bought: " + marketName);
+            System.out.println("Crypto bought: " + marketName);
+            System.out.println("Profit: " + loose);
         }
     }
 
