@@ -20,10 +20,7 @@ import com.github.ccob.bittrex4j.cloudflare.CloudFlareAuthorizer;
 import com.github.ccob.bittrex4j.dao.Currency;
 import com.github.ccob.bittrex4j.dao.*;
 import com.github.ccob.bittrex4j.dao.OrderBook.TYPE;
-import com.github.ccob.bittrex4j.listeners.InvocationResult;
-import com.github.ccob.bittrex4j.listeners.Listener;
-import com.github.ccob.bittrex4j.listeners.UpdateExchangeStateListener;
-import com.github.ccob.bittrex4j.listeners.UpdateSummaryStateListener;
+import com.github.ccob.bittrex4j.listeners.*;
 import com.github.signalr4j.client.ConnectionState;
 import com.github.signalr4j.client.hubs.HubConnection;
 import com.github.signalr4j.client.hubs.HubProxy;
@@ -73,6 +70,7 @@ public class BittrexExchange implements AutoCloseable {
     private List<String> marketSubscriptions = new ArrayList<>();
     private Observable<UpdateExchangeState> updateExchangeStateBroker = new Observable<>();
     private Observable<ExchangeSummaryState> exchangeSummaryStateBroker = new Observable<>();
+    private Observable<SimpleExchangeSummaryState> simpleExchangeSummaryStateBroker = new Observable<>();
     private Observable<OrderDelta> orderDeltaStateBroker = new Observable<>();
     private Observable<Throwable> websockerErrorListener = new Observable<>();
     private Observable<ConnectionStateChange> websocketStateChangeListener = new Observable<>();
@@ -81,12 +79,15 @@ public class BittrexExchange implements AutoCloseable {
 
     private JavaType updateExchangeStateType;
     private JavaType exchangeSummaryStateType;
+    private JavaType exchangeSimpleSummaryStateType;
     private JavaType orderDeltaStateType;
     private JavaType balanceDeltaStateType;
 
     private Timer reconnectTimer = new Timer();
 
     private int retries;
+
+    private boolean simple = true;
 
     private class ReconnectTimerTask extends TimerTask{
         @Override
@@ -126,6 +127,7 @@ public class BittrexExchange implements AutoCloseable {
 
         updateExchangeStateType = mapper.getTypeFactory().constructType(UpdateExchangeState.class);
         exchangeSummaryStateType = mapper.getTypeFactory().constructType(ExchangeSummaryState.class);
+        exchangeSimpleSummaryStateType = mapper.getTypeFactory().constructType(SimpleExchangeSummaryState.class);
         orderDeltaStateType = mapper.getTypeFactory().constructType(OrderDelta.class);
         balanceDeltaStateType = mapper.getTypeFactory().constructType(BalanceDelta.class);
 
@@ -162,6 +164,10 @@ public class BittrexExchange implements AutoCloseable {
 
     public void onUpdateSummaryState(UpdateSummaryStateListener exchangeSummaryState){
         exchangeSummaryStateBroker.addObserver(exchangeSummaryState);
+    }
+
+    public void onUpdateSimpleSummaryState(UpdateSimpleSummaryStateListener exchangeSummaryState){
+        simpleExchangeSummaryStateBroker.addObserver(exchangeSummaryState);
     }
 
     public void onUpdateExchangeState(UpdateExchangeStateListener listener){
@@ -264,10 +270,18 @@ public class BittrexExchange implements AutoCloseable {
             hubProxy = hubConnection.createHubProxy("c2");
             hubConnection.connected(this::connectedToWebSocket);
 
-            registerForEvent("uS", exchangeSummaryStateType,exchangeSummaryStateBroker);
-            registerForEvent("uE", updateExchangeStateType,updateExchangeStateBroker);
-            registerForEvent("uO", orderDeltaStateType,orderDeltaStateBroker);
-            registerForEvent("uB", balanceDeltaStateType,balanceDeltaStateBroker);
+            if(simple) {
+                registerForEvent("uS", exchangeSimpleSummaryStateType, simpleExchangeSummaryStateBroker);
+                registerForEvent("uE", updateExchangeStateType, updateExchangeStateBroker);
+                registerForEvent("uO", orderDeltaStateType, orderDeltaStateBroker);
+                registerForEvent("uB", balanceDeltaStateType, balanceDeltaStateBroker);
+
+            } else             {
+                registerForEvent("uS", exchangeSummaryStateType, exchangeSummaryStateBroker);
+                registerForEvent("uE", updateExchangeStateType, updateExchangeStateBroker);
+                registerForEvent("uO", orderDeltaStateType, orderDeltaStateBroker);
+                registerForEvent("uB", balanceDeltaStateType, balanceDeltaStateBroker);
+            }
 
             setupErrorHandler();
             setupStateChangeHandler();

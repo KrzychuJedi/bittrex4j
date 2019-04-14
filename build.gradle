@@ -50,6 +50,7 @@ documentr {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots"}
     maven { url "https://oss.sonatype.org/service/local/repositories/releases/content/"}
 }
@@ -64,6 +65,8 @@ dependencies {
     compile "com.google.code.gson:gson:2.8.2"
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     compile 'com.github.signalr4j:signalr4j:2.0.3'
+    compile 'org.apache.logging.log4j:log4j-api:2.11.2'
+    compile 'org.apache.logging.log4j:log4j-core:2.11.2'
 
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
     testCompile 'org.hamcrest:hamcrest-all:1.3'

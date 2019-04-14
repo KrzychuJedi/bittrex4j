@@ -13,4 +13,9 @@ public class MarketUtil {
         return amount.divide(price, BigDecimal.ROUND_HALF_UP).setScale(8, BigDecimal.ROUND_HALF_UP);
     }
 
+
+    public static double getBuyQuantity(double price, double amount) {
+        return amount / price;
+    }
+
 }
