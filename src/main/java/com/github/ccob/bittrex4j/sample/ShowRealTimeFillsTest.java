@@ -74,7 +74,7 @@ public class ShowRealTimeFillsTest {
                                     countProfits(marketName, marketSummary, bittrexExchange);
                                 }
                                 long endTime = System.nanoTime();
-                                System.out.println("btc path, start buying after: " + TimeUnit.NANOSECONDS.toNanos(endTime - time));
+                                log.debug("btc path, start buying after: " + TimeUnit.NANOSECONDS.toNanos(endTime - time));
                             });
                 }
             });
@@ -97,7 +97,7 @@ public class ShowRealTimeFillsTest {
                                 countProfitsEth(marketName, marketSummary, bittrexExchange);
 
                                 long endTime = System.nanoTime();
-                                System.out.println("eth path, start buying after: " + TimeUnit.NANOSECONDS.toNanos(endTime - time));
+                                log.debug("eth path, start buying after: " + TimeUnit.NANOSECONDS.toNanos(endTime - time));
                             });
                 }
             });
@@ -147,6 +147,7 @@ public class ShowRealTimeFillsTest {
                 bittrexExchange.subscribeToMarketSummaries(null);
             });
 
+            System.in.read();
         }
 
         System.out.println("Closing websocket and exiting");

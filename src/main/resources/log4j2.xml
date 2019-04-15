@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="logs/app.log"
+                     filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="250 MB"/>
+            </Policies>
+        </RollingFile>
+        <Async name="Async">
+            <AppenderRef ref="RollingFile"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.github.ccob.bittrex4j.sample" level="info">
+            <AppenderRef ref="Async"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <!--<Logger name="com.github.ccob.bittrex4j.sample" level="debug">-->
+            <!--<AppenderRef ref="Console"/>-->
+        <!--</Logger>-->
+        <Root level="debug">
+            <AppenderRef ref="warn"/>
+        </Root>
+    </Loggers>
+</Configuration>
