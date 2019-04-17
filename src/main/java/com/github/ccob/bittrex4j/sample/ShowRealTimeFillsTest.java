@@ -183,7 +183,7 @@ public class ShowRealTimeFillsTest {
         if (btcForEth > loose) {
 
             ethMarket.setNext(btcEthMarket);
-//            buyCryptoUsingBTC(btcMarket, ethMarket, bittrexExchange);
+            buyCryptoUsingBTC(btcMarket, ethMarket, bittrexExchange);
 
             log.info("Crypto bought: " + marketName);
             log.info("Profit: " + loose);

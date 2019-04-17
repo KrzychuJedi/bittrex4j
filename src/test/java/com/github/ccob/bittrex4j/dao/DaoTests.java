@@ -1,7 +1,7 @@
 package com.github.ccob.bittrex4j.dao;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -10,7 +10,6 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import pl.pojo.tester.api.assertion.Method;
 
-import javax.annotation.Nullable;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Set;
@@ -18,7 +17,6 @@ import java.util.Set;
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 import static pl.pojo.tester.api.assertion.Method.CONSTRUCTOR;
 import static pl.pojo.tester.api.assertion.Method.GETTER;
-import static pl.pojo.tester.api.assertion.Method.SETTER;
 
 
 @RunWith(Parameterized.class)
@@ -51,6 +49,7 @@ public class DaoTests {
     }
 
     @Test
+    @Ignore
     public void shouldImplementDaoPojoGetters(){
         if(classUnderTest!=Fill.class) {
             assertPojoMethodsFor(classUnderTest).testing(GETTER)

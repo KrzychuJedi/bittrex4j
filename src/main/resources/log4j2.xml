@@ -21,13 +21,12 @@
     <Loggers>
         <Logger name="com.github.ccob.bittrex4j.sample" level="info">
             <AppenderRef ref="Async"/>
-            <AppenderRef ref="Console"/>
         </Logger>
         <!--<Logger name="com.github.ccob.bittrex4j.sample" level="debug">-->
             <!--<AppenderRef ref="Console"/>-->
         <!--</Logger>-->
-        <Root level="debug">
-            <AppenderRef ref="warn"/>
+        <Root level="warn">
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>

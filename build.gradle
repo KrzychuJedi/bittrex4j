@@ -39,8 +39,18 @@ description = "Java library for accessing the Bittrex Web API's and Web Sockets.
 jar {
     manifest {
         attributes 'Implementation-Title': 'bittrex4j',
-                'Implementation-Version': version
+                'Implementation-Version': version,
+                'Main-Class': 'com.github.ccob.bittrex4j.sample.ShowRealTimeFillsTest'
     }
+}
+
+task customFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'com.github.ccob.bittrex4j.sample.ShowRealTimeFillsTest'
+    }
+    baseName = 'all-in-one-jar'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
 
 documentr {
@@ -89,7 +99,7 @@ task sourcesJar(type: Jar) {
 }
 
 artifacts {
-    archives javadocJar, sourcesJar
+    archives javadocJar, sourcesJar, customFatJar
 }
 
 if(project.findProperty("ossrhUsername") != null && project.findProperty("ossrhPassword") != null) {

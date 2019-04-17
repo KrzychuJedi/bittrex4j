@@ -13,10 +13,9 @@ package com.github.ccob.bittrex4j;
 
 import com.github.ccob.bittrex4j.dao.*;
 import com.github.ccob.bittrex4j.dao.OrderBook.TYPE;
-import com.github.signalr4j.client.hubs.*;
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
-
+import com.github.signalr4j.client.hubs.HubConnection;
+import com.github.signalr4j.client.hubs.HubProxy;
+import com.github.signalr4j.client.hubs.SubscriptionHandler1;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
@@ -28,9 +27,13 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicStatusLine;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
@@ -38,11 +41,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -391,6 +393,7 @@ public class BittrexExchangeTest {
 
 
     @Test
+    @Ignore
     public void shouldParseUpdateSummaryState() throws IOException{
 
         bittrexExchange.connectToWebSocket(() -> System.out.println("Connected"));
