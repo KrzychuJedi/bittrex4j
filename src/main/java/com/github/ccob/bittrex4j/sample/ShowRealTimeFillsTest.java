@@ -39,6 +39,7 @@ public class ShowRealTimeFillsTest {
     private static Map<String, SimpleMarketSummary> deals = new HashMap<>();
 
     private static final String BTC = "BTC";
+    private static final String BTC_MARKET_PREFIX = "BTC-";
     private static final String ETH = "ETH";
     private static final String BTC_ETH = "BTC-ETH";
 
@@ -175,7 +176,6 @@ public class ShowRealTimeFillsTest {
     private static void calculateProfits(SimpleMarketSummary btcMarket, SimpleMarketSummary ethMarket, BittrexExchange bittrexExchange, String marketName){
         double coinsForBTC = MarketUtil.getBuyQuantity(btcMarket.getAsk(), commission);
 
-
         double ethForCoin = coinsForBTC * commission * ethMarket.getBid();
 
         double btcForEth = ethForCoin * commission * btcEthMarket.getBid();
@@ -186,6 +186,7 @@ public class ShowRealTimeFillsTest {
             buyCryptoUsingBTC(btcMarket, ethMarket, bittrexExchange);
 
             log.info("Crypto bought: " + marketName);
+            log.info("Ask: " + btcMarket.getAsk());
             log.info("Profit: " + loose);
         }
     }
@@ -195,7 +196,7 @@ public class ShowRealTimeFillsTest {
 
         // buy X for BTC
 
-        Response<UuidResult> buyResponse = bittrexExchange.buyLimit(BTC + btcMarket.getMarketName(),
+        Response<UuidResult> buyResponse = bittrexExchange.buyLimit(BTC_MARKET_PREFIX + btcMarket.getMarketName(),
                 MarketUtil.getBuyQuantity(btcMarket.getAsk(), oneOfThousand),
                 btcMarket.getAsk());
 
@@ -206,6 +207,7 @@ public class ShowRealTimeFillsTest {
             deals.put(buyResponse.getResult().getUuid(), ethMarket);
             log.info("Operation succeed");
             log.info(buyResponse.getResult().getUuid());
+            log.info(buyResponse.getMessage());
         }
 
     }
