@@ -39,7 +39,6 @@ public class ShowRealTimeFillsTest {
     private static Map<String, SimpleMarketSummary> deals = new HashMap<>();
 
     private static final String BTC = "BTC";
-    private static final String BTC_MARKET_PREFIX = "BTC-";
     private static final String ETH = "ETH";
     private static final String BTC_ETH = "BTC-ETH";
 
@@ -51,7 +50,7 @@ public class ShowRealTimeFillsTest {
         prop.setProperty("apikey", args[0]);
         prop.setProperty("secret", args[1]);
 
-        try (BittrexExchange bittrexExchange = new BittrexExchange(prop.getProperty("apikey"), prop.getProperty("secret"))) {
+        try (BittrexExchange bittrexExchange = new BittrexExchange(0,prop.getProperty("apikey"), prop.getProperty("secret"))) {
 
             bittrexExchange.onUpdateSimpleSummaryState(exchangeSummaryState -> {
                 if (exchangeSummaryState.getDeltas().length > 0) {
@@ -187,7 +186,7 @@ public class ShowRealTimeFillsTest {
 
             log.info("Crypto bought: " + marketName);
             log.info("Ask: " + btcMarket.getAsk());
-            log.info("Profit: " + loose);
+            log.info("Profit: " + btcForEth);
         }
     }
 
@@ -196,7 +195,7 @@ public class ShowRealTimeFillsTest {
 
         // buy X for BTC
 
-        Response<UuidResult> buyResponse = bittrexExchange.buyLimit(BTC_MARKET_PREFIX + btcMarket.getMarketName(),
+        Response<UuidResult> buyResponse = bittrexExchange.buyLimit(btcMarket.getMarketName(),
                 MarketUtil.getBuyQuantity(btcMarket.getAsk(), oneOfThousand),
                 btcMarket.getAsk());
 
